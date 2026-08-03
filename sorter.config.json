@@ -1,0 +1,14 @@
+{
+  "PluginsFolder": "Plugins",
+  "JournalFolder": "Journals",
+  "DefaultStrategy": "extension",
+  "DetectDuplicates": true,
+  "ConflictResolution": "rename",
+  "WatchFolders": [
+    {
+      "Path": "C:\\Users\\Noah\\Downloads",
+      "Strategy": "extension",
+      "DebounceMs": 3000
+    }
+  ]
+}
