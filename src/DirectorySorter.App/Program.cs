@@ -45,7 +45,13 @@ internal static class Program
         // --- plugin discovery -------------------------------------------
         var pluginsFolder = Path.Combine(baseDir, config.PluginsFolder);
         var loader = new PluginLoader(log);
-        var plugins = loader.LoadFrom(pluginsFolder);
+        var plugins = loader.LoadFrom(pluginsFolder).ToList();
+
+        if (config.Rules.Count > 0)
+        {
+            plugins.Add(new RuleBasedPlugin(config.Rules, plugins, config.RulesFallbackStrategy));
+            log.Info($"Loaded {config.Rules.Count} custom rule(s) as strategy 'rules' (fallback: {config.RulesFallbackStrategy})");
+        }
 
         if (args.Contains("--list-plugins"))
         {

@@ -1,0 +1,64 @@
+<Window x:Class="DirectorySorter.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DirectorySorter" Height="620" Width="920" MinHeight="450" MinWidth="720">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Folder picker -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="FolderBox" Grid.Column="0" Margin="0,0,8,0"
+                     Height="28" VerticalContentAlignment="Center"
+                     ToolTip="Folder to sort"/>
+            <Button x:Name="BrowseButton" Grid.Column="1" Content="Browse..." Width="90" Click="Browse_Click"/>
+        </Grid>
+
+        <!-- Options -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Strategy:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="StrategyCombo" Width="190" Margin="0,0,20,0"/>
+
+            <CheckBox x:Name="RecursiveCheck" Content="Recursive" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <CheckBox x:Name="DuplicatesCheck" Content="Detect duplicates" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
+
+            <TextBlock Text="On conflict:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="ConflictCombo" Width="110" SelectedIndex="0">
+                <ComboBoxItem Content="rename"/>
+                <ComboBoxItem Content="skip"/>
+                <ComboBoxItem Content="overwrite"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button x:Name="PreviewButton" Content="Preview" Width="100" Margin="0,0,8,0" Click="Preview_Click"/>
+            <Button x:Name="RunButton" Content="Run Sort" Width="100" Margin="0,0,8,0" Click="Run_Click"/>
+            <Button x:Name="UndoButton" Content="Undo Last Run" Width="130" IsEnabled="False" Click="Undo_Click"/>
+            <TextBlock x:Name="BusyText" Text="Working..." Foreground="DarkOrange"
+                       VerticalAlignment="Center" Margin="16,0,0,0" Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- Preview / results grid -->
+        <DataGrid x:Name="ResultsGrid" Grid.Row="3" AutoGenerateColumns="False" IsReadOnly="True"
+                  Margin="0,0,0,10" GridLinesVisibility="Horizontal" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="3*"/>
+                <DataGridTextColumn Header="Destination (relative)" Binding="{Binding Destination}" Width="3*"/>
+                <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status bar -->
+        <TextBlock x:Name="StatusText" Grid.Row="4" Text="Ready." FontStyle="Italic"/>
+    </Grid>
+</Window>

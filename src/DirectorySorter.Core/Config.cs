@@ -11,6 +11,8 @@ public sealed class SorterConfig
     public bool DetectDuplicates { get; set; } = true;
     public string ConflictResolution { get; set; } = "rename";
     public List<WatchFolder> WatchFolders { get; set; } = new();
+    public List<RuleDefinition> Rules { get; set; } = new();
+    public string RulesFallbackStrategy { get; set; } = "extension";
 
     public static SorterConfig Load(string path)
     {

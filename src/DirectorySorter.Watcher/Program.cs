@@ -21,7 +21,13 @@ internal static class Program
         var config = SorterConfig.Load(configPath);
 
         var loader = new PluginLoader(log);
-        var plugins = loader.LoadFrom(Path.Combine(baseDir, config.PluginsFolder));
+        var plugins = loader.LoadFrom(Path.Combine(baseDir, config.PluginsFolder)).ToList();
+
+        if (config.Rules.Count > 0)
+        {
+            plugins.Add(new RuleBasedPlugin(config.Rules, plugins, config.RulesFallbackStrategy));
+            log.Info($"Loaded {config.Rules.Count} custom rule(s) as strategy 'rules' (fallback: {config.RulesFallbackStrategy})");
+        }
 
         if (config.WatchFolders.Count == 0)
         {

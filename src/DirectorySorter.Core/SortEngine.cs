@@ -2,6 +2,9 @@ namespace DirectorySorter.Core;
 
 public sealed record SortResult(int FilesMoved, int FilesSkipped, int DuplicatesFound, string? JournalPath);
 
+/// <summary>One file's planned move, for review before anything actually happens (used by the GUI's Preview and CLI --dry-run).</summary>
+public sealed record PlannedMove(string SourcePath, string RelativeDestination, bool IsDuplicate);
+
 /// <summary>
 /// Orchestrates a single sort pass: enumerate files, ask the active plugin where
 /// each one belongs, resolve name conflicts, move files (or simulate in dry-run),
@@ -102,6 +105,52 @@ public sealed class SortEngine
             journalPath = _journal.Save(journalFolder);
 
         return new SortResult(moved, skipped, duplicatesFound, journalPath);
+    }
+
+    /// <summary>
+    /// Computes what a real run would do without touching the filesystem. Single-threaded
+    /// (unlike Run) since it's for on-screen review, not throughput.
+    /// </summary>
+    public List<PlannedMove> Preview(string rootPath, ISortPlugin plugin, SortOptions options)
+    {
+        var context = new SortContext { RootPath = rootPath, Options = options };
+        var searchOption = options.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
+        var allFiles = Directory.EnumerateFiles(rootPath, "*", searchOption)
+            .Select(p => new FileInfo(p))
+            .Where(f => !IsExcluded(f, options.ExcludeGlobs))
+            .ToList();
+
+        var dupSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (options.DetectDuplicates)
+        {
+            var dupes = HashUtil.FindDuplicates(allFiles);
+            foreach (var group in dupes.Values)
+                foreach (var dup in group.Skip(1))
+                    dupSet.Add(dup.FullName);
+        }
+
+        var results = new List<PlannedMove>();
+        foreach (var file in allFiles)
+        {
+            string? destFolder;
+            try
+            {
+                destFolder = plugin.GetDestinationFolder(file, context);
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(destFolder))
+                continue;
+
+            var relativeDest = Path.Combine(destFolder, file.Name);
+            results.Add(new PlannedMove(file.FullName, relativeDest, dupSet.Contains(file.FullName)));
+        }
+
+        return results;
     }
 
     private static string? ResolveConflict(string targetPath, string strategy)

@@ -10,5 +10,23 @@
       "Strategy": "extension",
       "DebounceMs": 3000
     }
+  ],
+  "RulesFallbackStrategy": "extension",
+  "Rules": [
+    {
+      "Name": "Big videos get their own bucket",
+      "Match": { "Extensions": [".mp4", ".mkv", ".mov"], "MinSizeMB": 500 },
+      "Folder": "BigVideo"
+    },
+    {
+      "Name": "Camera photos sorted by date taken",
+      "Match": { "NamePattern": "^IMG_\\d+" },
+      "UsePlugin": "date"
+    },
+    {
+      "Name": "Old installers archived",
+      "Match": { "Extensions": [".exe", ".msi"], "OlderThanDays": 180 },
+      "Folder": "Archive/OldInstallers"
+    }
   ]
 }
